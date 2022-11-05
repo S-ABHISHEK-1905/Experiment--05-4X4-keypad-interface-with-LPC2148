@@ -1,10 +1,8 @@
 # Experiment--05-4X4-keypad-interface-with-LPC2148
 
-Name :
-
-Roll no :
-
-Date of experiment :
+## Name : S.ABHISHEK
+## Roll no : 212221230002
+## Date: 13/10/2022
 
  
 ### Interfacing a 4X4 keypad LPC2148 ARM 7 Microcontroller 
@@ -141,18 +139,226 @@ Step 9: Select the hex file from the Kiel program folder and import the program 
 
 
 ## Kiel - Program:
-
-
-
-
+~~~
+#include &lt;lpc21xx.h&gt;
+#define LCD (0xff&lt;&lt;8)
+#define RS (1&lt;&lt;16)
+#define RW (1&lt;&lt;17)
+#define EN (1&lt;&lt;18)
+#define r1 (1&lt;&lt;16)
+#define r2 (1&lt;&lt;17)
+#define r3 (1&lt;&lt;18)
+#define r4 (1&lt;&lt;19)
+#define c1 (1&lt;&lt;20)
+#define c2 (1&lt;&lt;21)
+#define c3 (1&lt;&lt;22)
+#define c4 (1&lt;&lt;23)
+void delay(unsigned int time);
+void lcd_ini(void);
+void lcd_print(char*str);
+void lcd_cmd(unsigned char command);
+void lcd_dat(unsigned int data);
+unsigned char keypad(void);
+void keypad_delay(void);
+int main(void)
+{
+	PINSEL0 = 0x00000000;
+	IODIR0 = 0Xffffffff;
+	PINSEL1 = 0x00000000;
+	IODIR1 = 0x00f00000;
+	
+	lcd_ini();
+	lcd_print("Press any key");
+	lcd_cmd(0xc0);
+	
+	while(1)
+	{
+		lcd_dat(keypad());
+	}
+	return 0;
+}
+void keypad_delay(void)
+{
+	unsigned int t1,t2;
+	for(t1=0;t1&lt;300;t1++)
+			for(t2=0;t2&lt;1275;t2++);
+}
+unsigned char keypad (void)
+{
+	unsigned char key;
+	IOCLR1|=(c1|c2|c3|c4|r1|r2|r3|r4);
+	while(1)
+	{
+		IOCLR1|=c1;
+		IOSET1|=(c2|c3|c4);
+		if((IOPIN1&amp;r1)==0)
+		{
+			key='7';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r2)==0)
+		{
+			key='8';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r3)==0)
+		{
+			key='9';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r4)==0)
+		{
+			key='/';
+			keypad_delay();
+			return key();
+		}
+		
+		
+		IOCLR1|=c2;
+		IOSET1|=(c1|c3|c4);
+		
+		if((IOPIN1&amp;r1)==0)
+		{
+			key='4';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r2)==0)
+		{
+			key='5';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r3)==0)
+		{
+			key='6';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r4)==0)
+		{
+			key='*';
+			keypad_delay();
+			return key();
+		}
+		
+		
+		IOCLR1|=c3;
+		IOSET1|=(c1|c2|c4);
+		
+		if((IOPIN1&amp;r1)==0)
+		{
+			key='1';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r2)==0)
+		{
+			key='2';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r3)==0)
+		{
+			key='3';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r4)==0)
+		{
+			key='-';
+			keypad_delay();
+			return key();
+		}
+		
+		IOCLR1|=c4;
+		IOSET1|=(c1|c2|c3);
+		
+		if((IOPIN1&amp;r1)==0)
+		{
+			lcd_cmd(0x01);
+			keypad_delay();
+		}
+		else if((IOPIN1&amp;r2)==0)
+		{
+			key='0';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r3)==0)
+		{
+			key='=';
+			keypad_delay();
+			return key;
+		}
+		else if((IOPIN1&amp;r4)==0)
+		{
+			key='+';
+			keypad_delay();
+			return key();
+		}
+	}
+}
+void lcd_cmd(unsigned char command)
+{
+	IO0CLR|=(RS|RW|EN|LCD);
+	IO0SET|=(command&lt;&lt:8);
+	IO0CLR|=RS;
+	IO0CLR|=RW;
+	IO0SET|=EN;
+	delay(2);
+	IO0CLR|=EN;
+	delay(3);
+}
+void lcd_dat(unsigned int data)
+{
+	IO0CLR|=(RS|RW|EN|LCD);
+	IO0SET|=(data&lt;&lt;8);
+	IO0SET|=RS;
+	IO0CLR|=RW;
+	IO0SET|=EN;
+	delay(2);
+	IO0CLR|=EN;
+	delay(3);
+}
+void lcd_print(char*str)
+{
+	while(*str!="\0")
+	{
+		lcd_dat(*str);
+		str++;
+	}
+}
+void lcd_ini(void)
+{
+	delay(5);
+	lcd_cmd(0X38);
+	lcd_cmd(0X0f);
+	lcd_cmd(0X06);
+	lcd_cmd(0X01);
+	delay(5);
+	lcd_cmd(0X80);
+}
+void keypad_delay(void)
+{
+	unsigned int t1,t2;
+	for(t1=0;t1&lt;time;t1++)
+			for(t2=0;t2&lt;1275;t2++);
+}
+}
+~~~
 ## Output screen shots :
+# Before stimulation :
+![image](https://user-images.githubusercontent.com/66360846/200113118-a86724fd-6789-4897-a3d1-7e79c8569dcf.png)
+
+# After Stimulation :
+![image](https://user-images.githubusercontent.com/66360846/200113125-c2dd7b0a-b053-4c15-b626-5de914a3e2a3.png)
+
+# Layout
+![image](https://user-images.githubusercontent.com/66360846/200113186-13c7db2a-57a2-4538-9098-a0eccf517d21.png)
 
 ## Result :
 Interfacing a keypad 4x4 is interfaced  with LPC2148
-
-
-
-
-
-
-
